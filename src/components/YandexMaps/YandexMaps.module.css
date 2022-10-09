@@ -1,0 +1,15 @@
+.map {
+  width: 100vw;
+  height: 100vh;
+}
+
+.no_placemarks_overlay {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  background-color: rgba(244, 244, 244, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

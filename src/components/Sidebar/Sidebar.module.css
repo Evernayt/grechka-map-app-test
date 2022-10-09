@@ -1,0 +1,25 @@
+.container {
+  position: fixed;
+  z-index: 10;
+  height: calc(100vh - 24px);
+  width: 350px;
+  background-color: var(--background-color);
+  box-shadow: 2px 0 2px 0 rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  transition: transform 0.5s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.error_message {
+  color: var(--danger-color);
+  text-align: center;
+  font-size: small;
+}
