@@ -1,5 +1,7 @@
 import { useState } from "react";
 import Select from "react-select";
+import { PLACEMARKS_KEY } from "../../constants/localStorage";
+import createClone from "../../helpers/createClone";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { IDescription } from "../../models/IDescription";
 import { IPlacemark } from "../../models/IPlacemark";
@@ -52,6 +54,7 @@ const Sidebar = () => {
   const selectedPlacemark = useAppSelector(
     (state) => state.map.selectedPlacemark
   );
+  const placemarks = useAppSelector((state) => state.map.placemarks);
 
   const dispatch = useAppDispatch();
 
@@ -76,6 +79,11 @@ const Sidebar = () => {
     };
 
     dispatch(addPlacemarkAction(placemark));
+
+    const placemarksClone: IPlacemark[] = createClone(placemarks);
+    placemarksClone.push(placemark);
+    localStorage.setItem(PLACEMARKS_KEY, JSON.stringify(placemarksClone));
+
     close();
   };
 

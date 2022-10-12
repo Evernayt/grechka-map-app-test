@@ -1,12 +1,25 @@
 import { YMaps, Map, Placemark, Clusterer } from "@pbe/react-yandex-maps";
 import { YMapsApi } from "@pbe/react-yandex-maps/typings/util/typing";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { PLACEMARKS_KEY } from "../../constants/localStorage";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { IPlacemark } from "../../models/IPlacemark";
-import { selectPlacemarkAction } from "../../store/reducers/MapSlice";
+import {
+  selectPlacemarkAction,
+  setPlacemarksAction,
+  setSidebarIsShownAction,
+} from "../../store/reducers/MapSlice";
+import Loader from "../Loader/Loader";
+import PlacemarkTooltip from "../PlacemarkTooltip/PlacemarkTooltip";
+import Button, { ButtonVariants } from "../UI/Button/Button";
 import styles from "./YandexMaps.module.css";
 
 const YandexMaps = () => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [activePlacemark, setActivePlacemark] = useState<IPlacemark | null>(
+    null
+  );
+
   const mapRef = useRef<any>(null);
 
   const sidebarIsShown = useAppSelector((state) => state.map.sidebarIsShown);
@@ -19,6 +32,13 @@ const YandexMaps = () => {
 
   const setMapRef = useCallback((instance: YMapsApi) => {
     mapRef.current = instance;
+  }, []);
+
+  useEffect(() => {
+    const placemarks: IPlacemark[] = JSON.parse(
+      localStorage.getItem(PLACEMARKS_KEY) || "[]"
+    );
+    dispatch(setPlacemarksAction(placemarks));
   }, []);
 
   const selectPlacemark = (coords: number[], address: string) => {
@@ -44,8 +64,27 @@ const YandexMaps = () => {
     });
   };
 
+  const mapLoaded = (instance: YMapsApi) => {
+    setLoading(false);
+    setMapRef(instance);
+  };
+
+  const openSidebar = () => {
+    dispatch(setSidebarIsShownAction(true));
+  };
+
   return (
     <>
+      {loading && <Loader className={styles.loader} />}
+      {!sidebarIsShown && (
+        <Button
+          variant={ButtonVariants.primary}
+          className={styles.add_address_btn}
+          onClick={openSidebar}
+        >
+          Добавить адрес
+        </Button>
+      )}
       {placemarks.length === 0 && !sidebarIsShown && (
         <div className={styles.no_placemarks_overlay}>
           <h1>Пусто</h1>
@@ -68,7 +107,7 @@ const YandexMaps = () => {
           }}
           modules={["Placemark", "geocode", "geoObject.addon.balloon"]}
           onClick={getCoords}
-          onLoad={(instance) => setMapRef(instance)}
+          onLoad={(instance) => mapLoaded(instance)}
         >
           <Clusterer>
             {selectedPlacemark && (
@@ -81,10 +120,25 @@ const YandexMaps = () => {
               />
             )}
             {placemarks.map((placemark) => (
-              <Placemark geometry={placemark.coords} key={placemark.id} />
+              <Placemark
+                geometry={placemark.coords}
+                properties={{
+                  balloonContent:
+                    '<div id="driver-2" class="driver-card"></div>',
+                }}
+                key={placemark.id}
+                onClick={() =>
+                  setTimeout(() => {
+                    setActivePlacemark(placemark);
+                  }, 0)
+                }
+              />
             ))}
           </Clusterer>
         </Map>
+        {activePlacemark && (
+          <PlacemarkTooltip placemark={activePlacemark} elementId="driver-2" />
+        )}
       </YMaps>
     </>
   );

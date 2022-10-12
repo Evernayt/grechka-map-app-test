@@ -26,6 +26,9 @@ export const mapSlice = createSlice({
     addPlacemarkAction(state, action: PayloadAction<IPlacemark>) {
       state.placemarks.push(action.payload);
     },
+    setPlacemarksAction(state, action: PayloadAction<IPlacemark[]>) {
+      state.placemarks = action.payload;
+    },
   },
 });
 
@@ -33,6 +36,7 @@ export const {
   setSidebarIsShownAction,
   selectPlacemarkAction,
   addPlacemarkAction,
+  setPlacemarksAction,
 } = mapSlice.actions;
 
 export default mapSlice.reducer;

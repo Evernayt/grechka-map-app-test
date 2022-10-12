@@ -1,3 +1,11 @@
+.loader {
+  position: absolute;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--background-color);
+  z-index: 10;
+}
+
 .map {
   width: 100vw;
   height: 100vh;
@@ -12,4 +20,18 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.add_address_btn {
+  width: max-content;
+  position: absolute;
+  z-index: 2;
+  padding: 0 48px;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2);
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 24px;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }

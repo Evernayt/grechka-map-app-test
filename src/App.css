@@ -1,7 +1,6 @@
 :root {
   /* COLORS */
   --background-color: #ffffff;
-
   --primary-color: #42a5f5;
   --primary-text-color: #ffffff;
   --secondary-color: #ebeae4;
@@ -54,4 +53,9 @@
   --shadow-5: rgba(0, 0, 0, 0.5);
   --shadow-8: rgba(0, 0, 0, 0.8);
   --shadow-inset: rgba(255, 255, 255, 0.05);
+}
+
+.driver-card {
+  width: 240px;
+  height: 400px;
 }
