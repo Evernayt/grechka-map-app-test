@@ -13,12 +13,12 @@ import Loader from "../Loader/Loader";
 import PlacemarkTooltip from "../PlacemarkTooltip/PlacemarkTooltip";
 import Button, { ButtonVariants } from "../UI/Button/Button";
 import styles from "./YandexMaps.module.css";
+import { renderToStaticMarkup } from "react-dom/server";
 
 const YandexMaps = () => {
   const [loading, setLoading] = useState<boolean>(true);
-  const [activePlacemark, setActivePlacemark] = useState<IPlacemark | null>(
-    null
-  );
+  const [percent, setPercent] = useState<number>(0);
+  const [tilesCount, setTilesCount] = useState<number>(0);
 
   const mapRef = useRef<any>(null);
 
@@ -35,11 +35,40 @@ const YandexMaps = () => {
   }, []);
 
   useEffect(() => {
+    preloader();
     const placemarks: IPlacemark[] = JSON.parse(
       localStorage.getItem(PLACEMARKS_KEY) || "[]"
     );
     dispatch(setPlacemarksAction(placemarks));
   }, []);
+
+  const preloader = () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const hTiles = Math.ceil(width / 256) + 2;
+    const vTiles = Math.ceil(height / 256) + 2;
+
+    //const tilesCount = hTiles * vTiles;
+    setTilesCount(hTiles * vTiles)
+
+    // for (let i = 0; i < tilesCount; i++) {
+    //   return new Promise((resolve, reject) => {
+    //     const image = document.createElement("img");
+    //     image.src =
+    //       "https://core-renderer-tiles.maps.yandex.net/tiles?l=map&v=22.10.14-1-b220930144100&x=309&y=160&z=9&scale=1&lang=ru_RU&apikey=2840f247-3bfd-4132-a1c3-88ad74394a86&ads=enabled";
+    //     image.onload = resolve;
+    //     image.onerror = reject;
+    //   }).then(() => setPercent((prevState) => prevState + 1));
+    // }
+  };
+
+  // useEffect(() => {
+  //   if (percent === 100) return;
+  //   setPercent((prevState) => prevState + 1);
+  //   const resourceList: any[] = window.performance.getEntriesByType("resource");
+  //   console.log(resourceList);
+  // }, [percent]);
 
   const selectPlacemark = (coords: number[], address: string) => {
     const placemark: IPlacemark = {
@@ -55,7 +84,8 @@ const YandexMaps = () => {
 
   const getCoords = (e: any) => {
     if (!sidebarIsShown) return;
-
+    console.log(e);
+    //e.originalEvent.target.cursors.push('arrow');
     const coords = e.get("coords");
     mapRef.current?.geocode(coords).then((res: any) => {
       const firstGeoObject = res.geoObjects.get(0);
@@ -67,6 +97,8 @@ const YandexMaps = () => {
   const mapLoaded = (instance: YMapsApi) => {
     setLoading(false);
     setMapRef(instance);
+    //console.log(instance);
+    //instance.Map.prototype.cursors.push("arrow");
   };
 
   const openSidebar = () => {
@@ -75,14 +107,14 @@ const YandexMaps = () => {
 
   return (
     <>
-      {loading && <Loader className={styles.loader} />}
+      {/* {loading && <Loader className={styles.loader} />} */}
       {!sidebarIsShown && (
         <Button
           variant={ButtonVariants.primary}
           className={styles.add_address_btn}
           onClick={openSidebar}
         >
-          Добавить адрес
+          Добавить адрес {percent}
         </Button>
       )}
       {placemarks.length === 0 && !sidebarIsShown && (
@@ -109,36 +141,29 @@ const YandexMaps = () => {
           onClick={getCoords}
           onLoad={(instance) => mapLoaded(instance)}
         >
+          {selectedPlacemark && (
+            <Placemark
+              geometry={selectedPlacemark.coords}
+              options={{
+                preset: "islands#greenDotIconWithCaption",
+                iconColor: "red",
+              }}
+            />
+          )}
           <Clusterer>
-            {selectedPlacemark && (
-              <Placemark
-                geometry={selectedPlacemark.coords}
-                options={{
-                  preset: "islands#greenDotIconWithCaption",
-                  iconColor: "red",
-                }}
-              />
-            )}
             {placemarks.map((placemark) => (
               <Placemark
                 geometry={placemark.coords}
                 properties={{
-                  balloonContent:
-                    '<div id="driver-2" class="driver-card"></div>',
+                  balloonContent: renderToStaticMarkup(
+                    <PlacemarkTooltip placemark={placemark} />
+                  ),
                 }}
                 key={placemark.id}
-                onClick={() =>
-                  setTimeout(() => {
-                    setActivePlacemark(placemark);
-                  }, 0)
-                }
               />
             ))}
           </Clusterer>
         </Map>
-        {activePlacemark && (
-          <PlacemarkTooltip placemark={activePlacemark} elementId="driver-2" />
-        )}
       </YMaps>
     </>
   );

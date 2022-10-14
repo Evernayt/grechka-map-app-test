@@ -7,36 +7,9 @@
   --text-color: #050505;
   --danger-color: #eb5c5c;
 
-  --primary-deemphasized-color: #ffea83;
-  --secondary-deemphasized-color: #f5f4ed;
-  --secondary-dark-color: #999999;
-  --secondary-text-color: #6b6a65;
-  --secondary-text-on-bg-color: #706d60;
-  --separator-color: #d4d3ce;
-  --border-color: #e2e1dd;
-  --talbe-border-color: #eeede8;
-  --tooltip-color: #3c3c3c;
-  --tooltip-text-color: #ffffff;
-  --card-background: #ffffff;
-  --primary-icon-color: #050505;
-  --primary-checked-icon-color: #514a26;
-  --secondary-icon-color: #050505;
-  --secondary-checked-icon-color: #ffffff;
-  --secondary-dark-icon-color: #ffffff;
-  --link-icon-color: #6b6a65;
-  --link-checked-icon-color: #ffd60a;
-  --danger-color: #eb5c5c;
-  --success-color: #14a44d;
-  --warning-color: #ff8c00;
-
   /* COLORS: HOVER */
   --hover-primary-color: #1976d2;
   --hover-secondary-color: #dfded8;
-
-  --hover-primary-deemphasized-color: #f2dc7c;
-  --hover-secondary-dark-color: #919191;
-  --hover-background-color: #e9e8e4;
-  --hover-card-color: #f2f2f2;
 
   /* COLORS: DISABLED */
   --disabled-background: #ebeae4;
@@ -44,18 +17,4 @@
 
   /* SIZES */
   --border-radius: 8px;
-  --table-column-padding: 16px;
-  --table-cell-padding: 16px;
-
-  /* SHADOWS */
-  --shadow-1: rgba(0, 0, 0, 0.1);
-  --shadow-2: rgba(0, 0, 0, 0.2);
-  --shadow-5: rgba(0, 0, 0, 0.5);
-  --shadow-8: rgba(0, 0, 0, 0.8);
-  --shadow-inset: rgba(255, 255, 255, 0.05);
-}
-
-.driver-card {
-  width: 240px;
-  height: 400px;
 }
