@@ -85,11 +85,6 @@ const Sidebar = () => {
         styles.container,
         sidebarIsShown ? styles.hide : styles.show,
       ].join(" ")}
-      // style={
-      //   sidebarIsShown
-      //     ? { transform: "translateX(0px)" }
-      //     : { transform: "translateX(-374px)" }
-      // }
     >
       <div>
         <h2>Выберите адрес на карте</h2>
