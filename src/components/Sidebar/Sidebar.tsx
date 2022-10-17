@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Select from "react-select";
 import { PLACEMARKS_KEY } from "../../constants/localStorage";
 import createClone from "../../helpers/createClone";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import { fetchMockAPI } from "../../http/mockAPI";
 import { IDescription } from "../../models/IDescription";
 import { IPlacemark } from "../../models/IPlacemark";
 import { ITitle } from "../../models/ITitle";
@@ -14,37 +15,9 @@ import {
 import Button, { ButtonVariants } from "../UI/Button/Button";
 import styles from "./Sidebar.module.css";
 
-const titles: ITitle[] = [
-  {
-    id: 0,
-    name: "Title 1",
-  },
-  {
-    id: 0,
-    name: "Title 2",
-  },
-  {
-    id: 0,
-    name: "Title 3",
-  },
-];
-
-const descriptions: IDescription[] = [
-  {
-    id: 0,
-    name: "Description 1",
-  },
-  {
-    id: 1,
-    name: "Description 2",
-  },
-  {
-    id: 2,
-    name: "Description 3",
-  },
-];
-
 const Sidebar = () => {
+  const [titles, setTitles] = useState<ITitle[]>([]);
+  const [descriptions, setDescriptions] = useState<IDescription[]>([]);
   const [selectedTitle, setSelectedTitle] = useState<ITitle | null>(null);
   const [selectedDescription, setSelectedDescription] =
     useState<IDescription | null>(null);
@@ -57,6 +30,17 @@ const Sidebar = () => {
   const placemarks = useAppSelector((state) => state.map.placemarks);
 
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    fetchMockData();
+  }, []);
+
+  const fetchMockData = () => {
+    fetchMockAPI().then((data) => {
+      setTitles(data.titles);
+      setDescriptions(data.descriptions);
+    });
+  };
 
   const addAddress = () => {
     if (!selectedPlacemark) {

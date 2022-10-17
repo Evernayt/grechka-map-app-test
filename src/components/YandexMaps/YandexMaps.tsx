@@ -17,10 +17,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 const YandexMaps = () => {
   const [loading, setLoading] = useState<boolean>(true);
-  const [percent, setPercent] = useState<number>(0);
-  const [tilesCount, setTilesCount] = useState<number>(0);
 
-  const mapRef = useRef<any>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const mapAPIRef = useRef<any>(null);
 
   const sidebarIsShown = useAppSelector((state) => state.map.sidebarIsShown);
   const selectedPlacemark = useAppSelector(
@@ -30,45 +29,26 @@ const YandexMaps = () => {
 
   const dispatch = useAppDispatch();
 
-  const setMapRef = useCallback((instance: YMapsApi) => {
-    mapRef.current = instance;
+  const setMapInstanceRef = useCallback((instance: any) => {
+    mapInstanceRef.current = instance;
+  }, []);
+
+  const setMapAPI = useCallback((api: YMapsApi) => {
+    mapAPIRef.current = api;
   }, []);
 
   useEffect(() => {
-    preloader();
     const placemarks: IPlacemark[] = JSON.parse(
       localStorage.getItem(PLACEMARKS_KEY) || "[]"
     );
     dispatch(setPlacemarksAction(placemarks));
   }, []);
 
-  const preloader = () => {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
-    const hTiles = Math.ceil(width / 256) + 2;
-    const vTiles = Math.ceil(height / 256) + 2;
-
-    //const tilesCount = hTiles * vTiles;
-    setTilesCount(hTiles * vTiles)
-
-    // for (let i = 0; i < tilesCount; i++) {
-    //   return new Promise((resolve, reject) => {
-    //     const image = document.createElement("img");
-    //     image.src =
-    //       "https://core-renderer-tiles.maps.yandex.net/tiles?l=map&v=22.10.14-1-b220930144100&x=309&y=160&z=9&scale=1&lang=ru_RU&apikey=2840f247-3bfd-4132-a1c3-88ad74394a86&ads=enabled";
-    //     image.onload = resolve;
-    //     image.onerror = reject;
-    //   }).then(() => setPercent((prevState) => prevState + 1));
-    // }
-  };
-
-  // useEffect(() => {
-  //   if (percent === 100) return;
-  //   setPercent((prevState) => prevState + 1);
-  //   const resourceList: any[] = window.performance.getEntriesByType("resource");
-  //   console.log(resourceList);
-  // }, [percent]);
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.cursors.push("arrow");
+    }
+  }, [mapInstanceRef.current]);
 
   const selectPlacemark = (coords: number[], address: string) => {
     const placemark: IPlacemark = {
@@ -84,21 +64,17 @@ const YandexMaps = () => {
 
   const getCoords = (e: any) => {
     if (!sidebarIsShown) return;
-    console.log(e);
-    //e.originalEvent.target.cursors.push('arrow');
     const coords = e.get("coords");
-    mapRef.current?.geocode(coords).then((res: any) => {
+    mapAPIRef.current?.geocode(coords).then((res: any) => {
       const firstGeoObject = res.geoObjects.get(0);
       const address = firstGeoObject.getAddressLine();
       selectPlacemark(coords, address);
     });
   };
 
-  const mapLoaded = (instance: YMapsApi) => {
+  const mapLoaded = (api: YMapsApi) => {
     setLoading(false);
-    setMapRef(instance);
-    //console.log(instance);
-    //instance.Map.prototype.cursors.push("arrow");
+    setMapAPI(api);
   };
 
   const openSidebar = () => {
@@ -107,14 +83,14 @@ const YandexMaps = () => {
 
   return (
     <>
-      {/* {loading && <Loader className={styles.loader} />} */}
+      {loading && <Loader className={styles.loader} />}
       {!sidebarIsShown && (
         <Button
           variant={ButtonVariants.primary}
           className={styles.add_address_btn}
           onClick={openSidebar}
         >
-          Добавить адрес {percent}
+          Добавить адрес
         </Button>
       )}
       {placemarks.length === 0 && !sidebarIsShown && (
@@ -125,8 +101,8 @@ const YandexMaps = () => {
       <YMaps
         query={{
           ns: "use-load-option",
-          load: "Map,Placemark,control.ZoomControl,geoObject.addon.balloon",
-          // load: "package.full",
+          //load: "Map,Placemark,control.ZoomControl,geoObject.addon.balloon",
+          load: "package.full",
           apikey: "2840f247-3bfd-4132-a1c3-88ad74394a86",
         }}
       >
@@ -137,9 +113,10 @@ const YandexMaps = () => {
             zoom: 9,
             controls: ["zoomControl"],
           }}
-          modules={["Placemark", "geocode", "geoObject.addon.balloon"]}
+          //modules={["Placemark", "geocode", "geoObject.addon.balloon"]}
           onClick={getCoords}
-          onLoad={(instance) => mapLoaded(instance)}
+          onLoad={(api) => mapLoaded(api)}
+          instanceRef={(instance) => setMapInstanceRef(instance)}
         >
           {selectedPlacemark && (
             <Placemark
